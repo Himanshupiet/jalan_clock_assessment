@@ -6,6 +6,7 @@
 - **Add Alarm:** Allows users to set an alarm for a specific time and day(s) of the week.
 - **Snooze Alarm:** Allows users to snooze an existing alarm for a specified number of minutes.
 - **Check Alarms:** Continuously checks for alarms that match the current time and day, and notifies the user when an alarm is ringing.
+- **Delete Alarm:** Allows users to delete a specific alarm.
 
 ## How to Use
 

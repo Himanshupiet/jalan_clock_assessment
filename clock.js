@@ -109,12 +109,13 @@ function promptUser() {
                 })
                 return
             case 'delete':
-                readLine.question('Enter alarm index to delete: ', (index) => {
+                readLine.question('Enter alarm index to delete : ', (index) => {
                     alarmClock.deleteAlarm(parseInt(index) - 1)
                     promptUser()
                 })
                 return
             case 'exit':
+                console.log('Thankyou for using clock alarm.')
                 readLine.close()
                 return
             default:
