@@ -1,26 +1,40 @@
-const readline = require('readline');
+const readline = require('readline')
 class Alarm {
     constructor(time, daysOfWeek) {
         this.time = time
         this.daysOfWeek = daysOfWeek
         this.isActive = true
+        this.snoozeCount = 0
     }
+
     matches(currentTime, currentDay) {
         return this.isActive && this.time === currentTime && this.daysOfWeek.includes(currentDay)
     }
+
     snooze(minutes) {
-        const [hours, mins] = this.time.split(':').map(Number)
-        const newMins = (mins + minutes) % 60
-        const newHours = (hours + Math.floor((mins + minutes) / 60)) % 24
-        this.time = `${newHours.toString().padStart(2, '0')}:${newMins.toString().padStart(2, '0')}`
+        if (this.snoozeCount < 3) {
+            const [hours, mins] = this.time.split(':').map(Number)
+            const newMins = (mins + minutes) % 60
+            const newHours = (hours + Math.floor((mins + minutes) / 60)) % 24
+            this.time = `${newHours.toString().padStart(2, '0')}:${newMins.toString().padStart(2, '0')}`
+            this.snoozeCount++
+        } else {
+            console.log('Maximum snooze limit reached.')
+        }
+    }
+
+    resetSnoozeCount() {
+        this.snoozeCount = 0
     }
 }
+
 class AlarmClock {
     constructor() {
         this.alarms = []
         this.currentTime = this.getCurrentTime()
         this.currentDay = this.getCurrentDay()
     }
+
     getCurrentTime() {
         const now = new Date()
         return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
@@ -34,12 +48,22 @@ class AlarmClock {
         this.alarms.push(new Alarm(time, daysOfWeek))
     }
 
+    deleteAlarm(index) {
+        if (index >= 0 && index < this.alarms.length) {
+            this.alarms.splice(index, 1)
+            console.log(`Alarm ${index + 1} deleted successfully!`)
+        } else {
+            console.log('Invalid alarm index.')
+        }
+    }
+
     checkAlarms() {
         this.alarms.forEach((alarm, index) => {
             if (alarm.matches(this.currentTime, this.currentDay)) {
                 console.log(`Alarm ${index + 1} is ringing.`)
+                alarm.resetSnoozeCount()
             }
-        });
+        })
     }
 
     displayTime() {
@@ -52,13 +76,16 @@ class AlarmClock {
         this.currentDay = this.getCurrentDay()
     }
 }
+
 const readLine = readline.createInterface({
     input: process.stdin,
     output: process.stdout
 })
+
 const alarmClock = new AlarmClock()
+
 function promptUser() {
-    readLine.question('Enter option (display/ add/ snooze/ exit): ', (option) => {
+    readLine.question('Enter option (display/ add/ snooze/ delete/ exit): ', (option) => {
         switch (option.toLowerCase()) {
             case 'display':
                 alarmClock.displayTime()
@@ -81,6 +108,12 @@ function promptUser() {
                     })
                 })
                 return
+            case 'delete':
+                readLine.question('Enter alarm index to delete: ', (index) => {
+                    alarmClock.deleteAlarm(parseInt(index) - 1)
+                    promptUser()
+                })
+                return
             case 'exit':
                 readLine.close()
                 return
@@ -90,9 +123,11 @@ function promptUser() {
         promptUser()
     })
 }
+
 console.log('Alarm Clock Program')
 promptUser()
+
 setInterval(() => {
     alarmClock.updateTime()
     alarmClock.checkAlarms()
-}, 60*1000);
+}, 60 * 1000)
